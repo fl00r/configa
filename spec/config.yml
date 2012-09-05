@@ -17,3 +17,14 @@ production:
     database: mysql_prod
     username: admin
     password: strongone
+
+staging:
+  prestaging:
+    mysql:
+      username: test
+    users:
+      mysql:
+        database: users
+    blogs:
+      mysql:
+        database: blogs

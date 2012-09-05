@@ -11,6 +11,11 @@ describe Configa do
       dev = configa.instance_variable_get(:"@yaml")["development"]
       dev["mysql"]["adapter"].must_equal mysql["adapter"]
       dev["mysql"]["database"].must_equal "mysql_dev"
+      proc{ configa.staging.prestaging.mysql.database}.must_raise Configa::UnknownKey
+      configa.staging.prestaging.mysql.adapter.must_equal "mysql"
+      configa.staging.prestaging.users.mysql.adapter.must_equal "mysql"
+      configa.staging.prestaging.users.mysql.username.must_equal "test"
+      configa.staging.prestaging.users.mysql.database.must_equal "users"
     end
 
     it "basic test for multi file config" do

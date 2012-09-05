@@ -132,7 +132,6 @@ config.videos.tarantool.space
 #=> 1
 config.videos.tarantool.type
 #=> :em
-
 ```
 
 ## Contributing

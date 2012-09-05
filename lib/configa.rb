@@ -18,6 +18,10 @@ module Configa
       parser
     end
 
+    def to_s
+      @yaml
+    end
+
     def parser(env=nil)
       env ||= @base_env
       env = env.to_s
@@ -40,24 +44,28 @@ module Configa
       base = ymls.delete(@base_env)
       yaml = base
       ymls.each do |env, data|
-        yaml[env] = base.merge(data)
+        yaml[env] = data
       end
       yaml = merge_yaml(yaml)
-      ymls.each do |env, data|
-        yaml[env] = merge_yaml(yaml[env])
-      end
       yaml
     end
 
-    def merge_yaml(yaml)
-      root_keys = yaml.keys
+    # Tree traverse
+    def merge_yaml(yaml, cache={})
+      cache = cache.dup
+      yaml.each do |k,v|
+        next  unless Hash === v
+        cache[k] ||= {}
+        cache[k] = cache[k].merge v  if cache[k] != v
+      end
       yaml.each do |k,v|
         next  unless Hash === v
         v.each do |key, data|
-          if root_keys.include? key
-            yaml[k][key] = yaml[key].merge data
+          if cache[key]
+            yaml[k][key] = cache[key].merge data  if cache[key] != data
           end
         end
+        yaml[k] = merge_yaml(yaml[k], cache)
       end
       yaml
     end

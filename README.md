@@ -95,7 +95,7 @@ config.development.databases.users.mysql.database
 
 ## Sometimes configuration files grows
 
-You can create `development.yml`, `staging.yml` or any other file, put it into the same folder as a base config file and Configa will automatically fetch and load it.
+You can create `development.yml`, `staging.yml` or any other file, put it into the same folder as a base config file and Configa will automatically fetch and load it. Also you can use cascade templates. For example in following example you can define `tarantool` namespace, wich will be inherited by `tarantool` namespace in "development" env.
 
 ```yaml
 # config.yml
@@ -128,6 +128,11 @@ config.development.mysql.database
 #=> "my_database"
 config.development.mysql.username
 #=> "root"
+config.videos.tarantool.space
+#=> 1
+config.videos.tarantool.type
+#=> :em
+
 ```
 
 ## Contributing

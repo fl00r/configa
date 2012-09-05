@@ -1,0 +1,19 @@
+mysql:
+  adapter: mysql
+  encoding: utf8
+  host: localhost
+  username: root
+
+development:
+  mysql:
+    database: mysql_dev
+
+test:
+  mysql:
+    database: mysql_test
+
+production:
+  mysql:
+    database: mysql_prod
+    username: admin
+    password: strongone

@@ -5,66 +5,59 @@ module Configa
   extend self
 
   def new(path)
-    MagickStruct.new(path).data
+    MagicContainer.new(path)
   end
 
-  class MagickStruct
-    attr_reader :data
-
+  class MagicContainer
     def initialize(path)
-      @base_path = path
+      @base_extname = File.extname(path)
+      @base_env = File.basename(path, @base_extname)
       @base_dir = File.dirname(path)
-      load_and_parse_yaml
+      @yamls = {}
+      @yaml = {}
+      parser
     end
 
-    def load_and_parse_yaml(env=nil)
-      @yaml ||= begin
-        file = File.read(@base_path)
-        YAML.load(file)
-      end
-      if env
-        env_path = File.join(@base_dir, env.to_s + ".yml")
-        return nil  unless File.exist?(env_path)
-        file = File.read(env_path)
-        env_yaml = { "#{env}" => YAML.load(file) }
-        @yaml.merge!(env_yaml)
-      end
-      root_keys = @yaml.keys
-      merger = Proc.new do |data|
-        data.each do |k,v|
-          next  unless Hash === v
-          if root_keys.include? k
-            data[k.to_s] = @yaml[k].merge(data[k])
-          else
-            merger.call(data)
-          end
-        end
-      end
-      @yaml.each do |k,v|
-        merger.call(v)
-      end
-      @data = magick(@yaml)
-
-      struct = self
-      @data.define_singleton_method(:__struct) do
-        return struct
-      end
-
-      @data.define_singleton_method(:method_missing) do |name, *args, &blk|
-        if new_data = __struct.load_and_parse_yaml(name) 
-          @data.define_singleton_method(name) do
-            new_data[name]
-          end
-          new_data.send(name)
-        else
-          super(name, args, &blk)
-        end
-      end
-
-      @data
+    def parser(env=nil)
+      env ||= @base_env
+      load_yaml(env)
+      @yaml = merge_yamls
+      @yaml = merge_yaml(@yaml)
+      @yaml = magic(@yaml)
     end
 
-    def magick(data)
+    def load_yaml(env)
+      @yamls[env] ||= begin
+        path = File.join(@base_dir, env.to_s + @base_extname)
+        file = File.read(path)
+        yaml = YAML.load(file)
+        yaml = merge_yaml(yaml)
+        yaml
+      end
+    end
+
+    def merge_yaml(yaml)
+      root_keys = yaml.keys
+      yaml.each do |k,v|
+        next  unless Hash === v
+        v.each do |key, data|
+          yaml[k][key] = yaml[key].merge data  if root_keys.include? key
+        end
+      end
+      yaml
+    end
+
+    def merge_yamls
+      ymls = @yamls.dup
+      base = ymls.delete(@base_env)
+      yaml = base
+      ymls.each do |env, data|
+        yaml[env] = base.merge(data)
+      end
+      yaml
+    end
+
+    def magic(data)
       data.each do |k,v|
         data.define_singleton_method(k) do |*args|
           if args.any?
@@ -76,10 +69,20 @@ module Configa
           end
         end
         if Hash === v
-          data[k] = magick(v)
+          data[k] = magic(v)
         end
       end
       data
+    end
+
+    def method_missing(name, *args, &blk)
+      unless @yaml[name.to_s] || @yamls[name.to_s]
+        path = File.join(@base_dir, name.to_s + @base_extname)
+        if File.exist?(path)
+          parser(name)
+        end
+      end
+      @yaml.send(name, *args, &blk)
     end
   end
 end

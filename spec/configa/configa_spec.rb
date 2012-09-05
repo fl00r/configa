@@ -2,6 +2,27 @@
 require 'spec_helper'
 
 describe Configa do
+
+  describe Configa::MagicContainer do
+    it "basic test for one file config" do
+      path = File.expand_path("../../config.yml", __FILE__)
+      configa = Configa::MagicContainer.new(path)
+      mysql = configa.instance_variable_get(:"@yaml")["mysql"]
+      dev = configa.instance_variable_get(:"@yaml")["development"]
+      dev["mysql"]["adapter"].must_equal mysql["adapter"]
+      dev["mysql"]["database"].must_equal "mysql_dev"
+    end
+
+    it "basic test for multi file config" do
+      path = File.expand_path("../../base.yml", __FILE__)
+      configa = Configa::MagicContainer.new(path)
+      mysql = configa.mysql
+      dev = configa.development
+      dev["mysql"]["adapter"].must_equal mysql.adapter
+      dev.mysql.database.must_equal "mysql_dev"
+    end
+  end
+  
   describe "one file" do
     before do
       path = File.expand_path("../../config.yml", __FILE__)

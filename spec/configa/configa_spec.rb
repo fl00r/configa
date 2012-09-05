@@ -21,8 +21,20 @@ describe Configa do
       dev["mysql"]["adapter"].must_equal mysql.adapter
       dev.mysql.database.must_equal "mysql_dev"
     end
+
+    it "should raise an error" do
+      path = File.expand_path("../../base.yml", __FILE__)
+      configa = Configa::MagicContainer.new(path)
+      proc{configa.staging}.must_raise Configa::UnknownEnvironment
+    end
+
+    it "should raise an error" do
+      path = File.expand_path("../../base.yml", __FILE__)
+      configa = Configa::MagicContainer.new(path)
+      proc{configa.development.sqlite3}.must_raise Configa::UnknownKey
+    end
   end
-  
+
   describe "one file" do
     before do
       path = File.expand_path("../../config.yml", __FILE__)

@@ -68,6 +68,9 @@ module Configa
             data[k]
           end
         end
+        data.define_singleton_method(:method_missing) do |name, *args, &blk|
+          raise Configa::UnknownKey, "Unknown key '#{name}' for current node. Available keys are: '#{data.keys * '\', \''}'. Current node: #{data.inspect}"
+        end
         if Hash === v
           data[k] = magic(v)
         end
@@ -76,13 +79,18 @@ module Configa
     end
 
     def method_missing(name, *args, &blk)
+      path = File.join(@base_dir, name.to_s + @base_extname)
       unless @yaml[name.to_s] || @yamls[name.to_s]
-        path = File.join(@base_dir, name.to_s + @base_extname)
         if File.exist?(path)
           parser(name)
         end
       end
       @yaml.send(name, *args, &blk)
+    rescue
+      raise Configa::UnknownEnvironment, "Unknown environment '#{name}', and file '#{path}' doesn't exist also"
     end
   end
+
+  class UnknownEnvironment < StandardError; end
+  class UnknownKey < StandardError; end
 end

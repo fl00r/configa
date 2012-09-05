@@ -134,6 +134,31 @@ config.videos.tarantool.type
 #=> :em
 ```
 
+All properties that defined higher in the tree will rewrite root properties:
+
+```yaml
+database:
+  adapter: sqlite
+  user: root
+
+development:
+  database:
+    db: dev_sqlite
+
+staging:
+  database:
+    adapter: mysql
+  internal_servers:
+    database:
+      db: internal_db
+  external_servers:
+    database:
+      db: external_db
+      user: external_root
+```
+
+So you can see how for whole staging node we rewrite database adapter, then for each subnode we specify other properties.
+
 ## Contributing
 
 1. Fork it

@@ -1,0 +1,4 @@
+mysql:
+  database: mysql_prod
+  username: admin
+  password: strongone

@@ -3,3 +3,7 @@ mysql:
   encoding: utf8
   host: localhost
   username: root
+
+tarantool:
+  host: localhost
+  port: 13013

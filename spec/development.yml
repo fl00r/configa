@@ -1,2 +1,14 @@
 mysql:
   database: mysql_dev
+
+tarantool:
+  host: "212.11.3.1"
+  type: :em
+
+users:
+  tarantool:
+    space: 1
+
+posts:
+  tarantool:
+    space: 2

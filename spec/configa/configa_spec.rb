@@ -64,6 +64,9 @@ describe Configa do
       @config.production.mysql.username.must_equal "admin"
       @config.production.mysql(:username, :database).must_equal ["admin", "mysql_prod"]
       @config.development.mysql.must_equal({"database"=>"mysql_dev", "adapter"=>"mysql", "encoding"=>"utf8", "host"=>"localhost", "username"=>"root"})
+      @config.development.users.tarantool.space.must_equal 1
+      @config.development.users.tarantool.port.must_equal 13013
+      @config.development.users.tarantool.host.must_equal "212.11.3.1"
     end
   end
 end

@@ -20,9 +20,9 @@ module Configa
 
     def parser(env=nil)
       env ||= @base_env
+      env = env.to_s
       load_yaml(env)
       @yaml = merge_yamls
-      @yaml = merge_yaml(@yaml)
       @yaml = magic(@yaml)
     end
 
@@ -31,20 +31,8 @@ module Configa
         path = File.join(@base_dir, env.to_s + @base_extname)
         file = File.read(path)
         yaml = YAML.load(file)
-        yaml = merge_yaml(yaml)
         yaml
       end
-    end
-
-    def merge_yaml(yaml)
-      root_keys = yaml.keys
-      yaml.each do |k,v|
-        next  unless Hash === v
-        v.each do |key, data|
-          yaml[k][key] = yaml[key].merge data  if root_keys.include? key
-        end
-      end
-      yaml
     end
 
     def merge_yamls
@@ -53,6 +41,23 @@ module Configa
       yaml = base
       ymls.each do |env, data|
         yaml[env] = base.merge(data)
+      end
+      yaml = merge_yaml(yaml)
+      ymls.each do |env, data|
+        yaml[env] = merge_yaml(yaml[env])
+      end
+      yaml
+    end
+
+    def merge_yaml(yaml)
+      root_keys = yaml.keys
+      yaml.each do |k,v|
+        next  unless Hash === v
+        v.each do |key, data|
+          if root_keys.include? key
+            yaml[k][key] = yaml[key].merge data
+          end
+        end
       end
       yaml
     end

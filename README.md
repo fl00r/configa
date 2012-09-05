@@ -107,28 +107,26 @@ mysql:
 tarantool:
   host: localhost
   port: 13013
-  videos:
-    space: 1
-    type: :block
-  users:
-    space: 2
-    type: :block
+  type: :block
 
 # development.yml
 mysql:
   database: my_database
 tarantool:
-  videos:
-    type: :em
-  users:
-    type: :em
+  type: :em
+videos:
+  tarantool:
+    space: 1
+users:
+  tarantool:
+    space: 2
 ```
 
 ```ruby
 config = Configa.new("config.yml")
-config.development.mysq.database
+config.development.mysql.database
 #=> "my_database"
-config.development.mysq.username
+config.development.mysql.username
 #=> "root"
 ```
 

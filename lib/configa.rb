@@ -77,12 +77,20 @@ module Configa
     def magic(data)
       data.each do |k,v|
         data.define_singleton_method(k) do |*args|
-          if args.any?
+          opts = {}
+          opts = args.pop if Hash === args.last
+          hash = opts[:hash]
+          res = if args.any?
             args.map do |arg|
               data[k][arg.to_s]
             end
           else
             data[k]
+          end
+          if hash
+            Hash[ [res].flatten.map{ |r| [args.shift, r]} ]
+          else
+            res
           end
         end
         data.define_singleton_method(:method_missing) do |name, *args, &blk|

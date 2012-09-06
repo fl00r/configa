@@ -29,8 +29,14 @@ config.development.mongodb.user
 #=> "pedro"
 config.development.mongodb(:user, :password)
 #=> ["pedro", "password"]
+config.development.mongodb(:user, :password, hash: true)
+#=> { user: "pedro", password: "password"}
 config.production.root.password
 #=> Error is raised ;)
+
+config = Configa.new(config_file_path, env: :development)
+config.mongodb.user
+#=> "pedro"
 ```
 
 ## Why anyone needs configa?

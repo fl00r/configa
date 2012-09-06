@@ -85,5 +85,11 @@ describe Configa do
       @config.storage.must_equal "tmp"
       proc{ @config.production.mysql.username }.must_raise Configa::UnknownEnvironment
     end
+
+    it "should return result as a hash" do
+      path = File.expand_path("../../config.yml", __FILE__)
+      @config = Configa.new(path)
+      @config.production.mysql(:username, :database, hash: true).must_equal({ username: "admin", database: "mysql_prod" })
+    end
   end
 end

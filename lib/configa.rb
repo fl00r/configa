@@ -42,9 +42,9 @@ module Configa
     def merge_yamls
       ymls = @yamls.dup
       base = ymls.delete(@base_env)
-      yaml = base
+      yaml = base.dup
       ymls.each do |env, data|
-        yaml[env] = data
+        yaml[env] = base.merge data
       end
       yaml = merge_yaml(yaml)
       yaml

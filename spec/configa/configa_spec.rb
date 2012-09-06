@@ -26,6 +26,7 @@ describe Configa do
       dev = configa.development
       dev["mysql"]["adapter"].must_equal mysql.adapter
       dev.mysql.database.must_equal "mysql_dev"
+      configa.development.storage.must_equal configa.storage
     end
 
     it "should raise an error" do

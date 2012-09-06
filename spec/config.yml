@@ -18,6 +18,10 @@ production:
     username: admin
     password: strongone
 
+users:
+  mysql:
+    password: password
+
 staging:
   prestaging:
     mysql:

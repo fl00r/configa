@@ -52,7 +52,6 @@ module Configa
 
     # Tree traverse
     def merge_yaml(yaml, cache={})
-      cache = cache.dup
       yaml.each do |k,v|
         next  unless Hash === v
         cache[k] ||= {}
@@ -60,9 +59,9 @@ module Configa
       end
       yaml.each do |k,v|
         next  unless Hash === v
-        v.each do |key, data|
+        v.each do |key, val|
           if cache[key]
-            yaml[k][key] = cache[key].merge data  if cache[key] != data
+            yaml[k][key] = cache[key].merge yaml[k][key]  if cache[key] != val
           end
         end
         yaml[k] = merge_yaml(yaml[k], cache)

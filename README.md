@@ -173,6 +173,7 @@ dev.production.mysql
 # will raise an error
 all.production.mysql
 # will return mysql for production
+```
 
 ## Contributing
 

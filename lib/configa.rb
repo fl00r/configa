@@ -18,7 +18,7 @@ module Configa
 
       @default_env = opts[:env]
 
-      parser
+      parser(@base_env)
     end
 
     def to_s
@@ -26,12 +26,12 @@ module Configa
     end
 
     def parser(env=nil)
-      env ||= @base_env
-      env = env.to_s
       load_yaml(env)
       load_yaml(@default_env.to_s) if @default_env
+
       @yaml = merge_yamls
       @yaml = @yaml[@default_env.to_s] || {} if @default_env
+
       @yaml = magic(@yaml)
     end
 
@@ -45,13 +45,15 @@ module Configa
     end
 
     def merge_yamls
-      ymls = @yamls.dup
-      base = ymls.delete(@base_env)
-      yaml = base.dup
-      ymls.each do |env, data|
-        yaml[env] = base.merge data
+      base = @yamls[@base_env]
+      # base.dup won't work
+      # we can use or eval or Marshal here
+      yaml = eval(base.to_s)
+      @yamls.each do |env, data|
+        next if env == @base_env
+        yaml[env.dup] = eval((base.merge data).to_s)
       end
-      yaml = merge_yaml(yaml)
+      merge_yaml(yaml)
       yaml
     end
 
@@ -60,7 +62,7 @@ module Configa
       yaml.each do |k,v|
         next  unless Hash === v
         cache[k] ||= {}
-        cache[k] = cache[k].merge v  if cache[k] != v
+        cache[k] = v  if cache[k] != v
       end
       yaml.each do |k,v|
         next  unless Hash === v
@@ -107,7 +109,7 @@ module Configa
       path = File.join(@base_dir, name.to_s + @base_extname)
       unless @yaml[name.to_s] || @yamls[name.to_s]
         if File.exist?(path)
-          parser(name)
+          parser(name.to_s)
         end
       end
       @yaml.send(name, *args, &blk)

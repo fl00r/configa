@@ -1,0 +1,6 @@
+tarantool:
+  type: :block
+
+common:
+  tarantool:
+    space: 3

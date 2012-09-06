@@ -9,3 +9,7 @@ tarantool:
   port: 13013
 
 storage: "tmp"
+
+common:
+  tarantool:
+    space: 3

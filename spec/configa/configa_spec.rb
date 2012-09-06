@@ -1,6 +1,8 @@
 # encoding: utf-8
 require 'spec_helper'
 
+# To be refactored ;)
+
 describe Configa do
 
   describe Configa::MagicContainer do
@@ -74,6 +76,7 @@ describe Configa do
       @config.development.users.tarantool.space.must_equal 1
       @config.development.users.tarantool.port.must_equal 13013
       @config.development.users.tarantool.host.must_equal "212.11.3.1"
+      @config.development.common.tarantool.host.must_equal "212.11.3.1"
     end
   end
 
@@ -90,6 +93,41 @@ describe Configa do
       path = File.expand_path("../../config.yml", __FILE__)
       @config = Configa.new(path)
       @config.production.mysql(:username, :database, hash: true).must_equal({ username: "admin", database: "mysql_prod" })
+    end
+  end
+
+  describe "simple_base" do
+    before do
+      path = File.expand_path("../../simple_base.yml", __FILE__)
+      @config = Configa.new(path)
+    end
+
+    it "should read base properties and raise error on non existing one" do
+      @config.tarantool.type.must_equal :block
+      @config.common.tarantool.space.must_equal 3
+      @config.common.tarantool.type.must_equal :block
+      proc{ @config.common.tarantool.host }.must_raise Configa::UnknownKey
+    end
+
+    it "should load simple_dev env without rewriting base properties" do
+      @config.simple_dev.common.tarantool.space.must_equal 3
+      @config.common.tarantool.type.must_equal :block
+      proc{ @config.common.tarantool.host }.must_raise Configa::UnknownKey
+      @config.simple_dev.common.tarantool.type.must_equal :em
+    end
+  end
+
+  describe Configa::MagicContainer do
+    before do
+      path = File.expand_path("../../simple_base.yml", __FILE__)
+      @container = Configa::MagicContainer.new(path)
+    end
+
+    it "should parse second file without rewriting data in base" do
+      yamls_was = @container.instance_variable_get(:"@yamls")
+      @container.parser('simple_dev')
+      yamls_now = @container.instance_variable_get(:"@yamls")
+      yamls_was["simple_base"].must_equal yamls_now["simple_base"]
     end
   end
 end

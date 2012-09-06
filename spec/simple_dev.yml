@@ -1,0 +1,3 @@
+tarantool:
+  type: :em
+  host: localhost

@@ -159,6 +159,21 @@ staging:
 
 So you can see how for whole staging node we rewrite database adapter, then for each subnode we specify other properties.
 
+Also you can define default environment:
+
+```ruby
+dev = Configa.new(path, env: development)
+all = Configa.new(path)
+
+dev.mysql
+# the same as
+all.development.mysql
+
+dev.production.mysql
+# will raise an error
+all.production.mysql
+# will return mysql for production
+
 ## Contributing
 
 1. Fork it

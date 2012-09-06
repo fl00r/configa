@@ -4,17 +4,20 @@ require "yaml"
 module Configa
   extend self
 
-  def new(path)
-    MagicContainer.new(path)
+  def new(path, opts={})
+    MagicContainer.new(path, opts)
   end
 
   class MagicContainer
-    def initialize(path)
+    def initialize(path, opts={})
       @base_extname = File.extname(path)
       @base_env = File.basename(path, @base_extname)
       @base_dir = File.dirname(path)
       @yamls = {}
       @yaml = {}
+
+      @default_env = opts[:env]
+
       parser
     end
 
@@ -26,7 +29,9 @@ module Configa
       env ||= @base_env
       env = env.to_s
       load_yaml(env)
+      load_yaml(@default_env.to_s) if @default_env
       @yaml = merge_yamls
+      @yaml = @yaml[@default_env.to_s] || {} if @default_env
       @yaml = magic(@yaml)
     end
 

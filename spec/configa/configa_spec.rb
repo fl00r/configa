@@ -76,4 +76,14 @@ describe Configa do
       @config.development.users.tarantool.host.must_equal "212.11.3.1"
     end
   end
+
+  describe "options" do
+    it "should work with default env" do
+      path = File.expand_path("../../base.yml", __FILE__)
+      @config = Configa.new(path, env: :development)
+      @config.mysql.username.must_equal "root"
+      @config.storage.must_equal "tmp"
+      proc{ @config.production.mysql.username }.must_raise Configa::UnknownEnvironment
+    end
+  end
 end

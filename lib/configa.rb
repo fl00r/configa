@@ -2,6 +2,9 @@ require "configa/version"
 require "yaml"
 
 module Configa
+  class UnknownEnvironment < StandardError; end
+  class UnknownKey < StandardError; end
+
   extend self
 
   def new(path, opts={})
@@ -46,12 +49,10 @@ module Configa
 
     def merge_yamls
       base = @yamls[@base_env]
-      # base.dup won't work
-      # we can use or eval or Marshal here
-      yaml = eval(base.to_s)
+      yaml = dup(base)
       @yamls.each do |env, data|
         next if env == @base_env
-        yaml[env.dup] = eval((base.merge data).to_s)
+        yaml[env.dup] = dup(base.merge data)
       end
       merge_yaml(yaml)
       yaml
@@ -116,8 +117,12 @@ module Configa
     rescue
       raise Configa::UnknownEnvironment, "Unknown environment '#{name}', and file '#{path}' doesn't exist also"
     end
-  end
 
-  class UnknownEnvironment < StandardError; end
-  class UnknownKey < StandardError; end
+  private
+
+    def dup(hash)
+      marshal = Marshal.dump(hash)
+      Marshal.load(marshal)
+    end
+  end
 end

@@ -19,7 +19,14 @@ module Configa
       @yamls = {}
       @yaml = {}
 
-      @default_env = opts[:env]
+      if opts[:env]
+        fn = File.join(@base_dir, opts[:env].to_s + @base_extname)
+        if File.exist?(fn)
+          @default_env = opts[:env]
+        else
+          puts "Configa WARNING: can't find #{fn}, using base configuration"
+        end
+      end
 
       parser(@base_env)
     end
@@ -41,6 +48,7 @@ module Configa
     def load_yaml(env)
       @yamls[env] ||= begin
         path = File.join(@base_dir, env.to_s + @base_extname)
+
         file = File.read(path)
         yaml = YAML.load(file)
         yaml

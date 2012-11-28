@@ -89,6 +89,15 @@ describe Configa do
       proc{ @config.production.mysql.username }.must_raise Configa::UnknownEnvironment
     end
 
+    it "should work with default env that don't exist" do
+      path = File.expand_path("../../base.yml", __FILE__)
+      @config = Configa.new(path, env: :some_non_exist_env)
+      @config.mysql.username.must_equal "root"
+      @config.storage.must_equal "tmp"
+      @config.mysql.host.must_equal "localhost"
+      @config.production.mysql.username.must_equal "admin"
+    end
+
     it "should return result as a hash" do
       path = File.expand_path("../../config.yml", __FILE__)
       @config = Configa.new(path)

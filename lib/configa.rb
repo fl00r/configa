@@ -99,7 +99,11 @@ module Configa
             data[k]
           end
           if hash
-            Hash[ [res].flatten.map{ |r| [args.shift, r]} ]
+            if args.any?
+              Hash[ [res].flatten.map{ |r| [args.shift, r]} ]
+            else
+              res
+            end
           else
             res
           end

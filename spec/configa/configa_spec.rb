@@ -102,6 +102,7 @@ describe Configa do
       path = File.expand_path("../../config.yml", __FILE__)
       @config = Configa.new(path)
       @config.production.mysql(:username, :database, hash: true).must_equal({ username: "admin", database: "mysql_prod" })
+      @config.production.mysql(hash: true).must_equal({"adapter"=>"mysql", "encoding"=>"utf8", "host"=>"localhost", "username"=>"admin", "database"=>"mysql_prod", "password"=>"strongone"})
     end
   end
 
